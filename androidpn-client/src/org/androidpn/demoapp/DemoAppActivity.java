@@ -21,6 +21,7 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.Button;
 
 /**
@@ -29,26 +30,47 @@ import android.widget.Button;
  * @author Sehwan Noh (devnoh@gmail.com)
  */
 public class DemoAppActivity extends Activity {
-
+	private static final String TAG = DemoAppActivity.class.getSimpleName();
+	private ServiceManager mServiceManager;
+	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         Log.d("DemoAppActivity", "onCreate()...");
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-
-        // Settings
-        Button okButton = (Button) findViewById(R.id.btn_settings);
-        okButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
-                ServiceManager.viewNotificationSettings(DemoAppActivity.this);
-            }
-        });
-
-        // Start the service
-        ServiceManager serviceManager = new ServiceManager(this);
-        serviceManager.setNotificationIcon(R.drawable.notification);
-        serviceManager.startService();
+        
+        init();
     }
 
+	private void init() {
+		findViewById(R.id.btn_login).setOnClickListener(mClickListener);
+		findViewById(R.id.btn_logout).setOnClickListener(mClickListener);
+		findViewById(R.id.btn_settings).setOnClickListener(mClickListener);
+	}
+	
+	private OnClickListener mClickListener = new OnClickListener() {
+		@Override
+		public void onClick(View v) {
+			switch (v.getId()) {
+			case R.id.btn_login:
+		        // Start the service
+		        mServiceManager = new ServiceManager(DemoAppActivity.this);
+		        mServiceManager.setNotificationIcon(R.drawable.notification);
+		        mServiceManager.startService();
+				break;
+			case R.id.btn_logout:
+				if (mServiceManager != null) {
+					mServiceManager.stopService();
+					mServiceManager = null;
+				}
+				break;
+			case R.id.btn_settings:
+				ServiceManager.viewNotificationSettings(DemoAppActivity.this);
+				break;
+			default:
+				break;
+			}
+		}
+	};
 }
